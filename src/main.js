@@ -15,4 +15,10 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 app.use(router)
 app.use(ElementPlus)
 
+import EmailSender from './components/EmailSender.vue';
+app.component("email-sender",EmailSender)
+
+import Request from './utils/Request.js'
+app.config.globalProperties.Request = Request
+
 app.mount('#app')
