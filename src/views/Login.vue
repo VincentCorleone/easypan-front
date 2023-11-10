@@ -10,13 +10,15 @@ const form = reactive({
 
 })
 
-const host = "http://localhost:8080"
+import config from '../utils/config.js'
+
+const baseUrl = config.baseUrl
 const api = {
-  captcha: "/api/captcha"
+  captcha: "/captcha"
 }
 
-const captchaUrlEmail = ref(host + api.captcha + "?type=email&time=" + new Date().getTime())
-const captchaUrl = ref(host + api.captcha + "?time=" + new Date().getTime())
+const captchaUrlEmail = ref(baseUrl + api.captcha + "?type=email&time=" + new Date().getTime())
+const captchaUrl = ref(baseUrl + api.captcha + "?time=" + new Date().getTime())
 
 
 
@@ -111,9 +113,9 @@ const closeEmailSender = () => {
 const updateCaptcha = (type) => {
   console.log("更新验证码")
   if(type == "email"){
-    captchaUrlEmail.value = host + api.captcha + "?type=email&time=" + new Date().getTime()
+    captchaUrlEmail.value = baseUrl + api.captcha + "?type=email&time=" + new Date().getTime()
   }else{
-    captchaUrl.value = host + api.captcha + "?time=" + new Date().getTime()
+    captchaUrl.value = baseUrl + api.captcha + "?time=" + new Date().getTime()
   }
 }
 

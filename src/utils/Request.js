@@ -1,7 +1,8 @@
 import axios from 'axios'
+import config from './config.js'
 
 const instance = axios.create({
-    baseURL: '/api',
+    baseURL: config.baseUrl,
     timeout: 30 * 1000
 })
 

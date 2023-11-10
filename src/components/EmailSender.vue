@@ -30,10 +30,11 @@ import { ElMessage } from 'element-plus'
 const { proxy } = getCurrentInstance();
 
 
+import config from '../utils/config.js'
 
-const host = "http://localhost:8080"
+const baseUrl = config.baseUrl
 const api = {
-  captcha: "/api/captcha"
+  captcha: "/captcha"
 }
 
 const validatorCaptcha = (rule, value, callback) => {
@@ -55,7 +56,7 @@ const emit = defineEmits(['close'])
 
 const form = reactive({})
 
-const captchaUrlEmail = ref(host + api.captcha + "?type=email&time=" + new Date().getTime())
+const captchaUrlEmail = ref(baseUrl + api.captcha + "?type=email&time=" + new Date().getTime())
 
 const formRef = ref(null)
 
@@ -99,9 +100,9 @@ const getEmailCode = (formEl)=>{
 const updateCaptcha = (type)=>{
     console.log("更新验证码")
     if(type == "email"){
-        captchaUrlEmail.value = host + api.captcha + "?type=email&time=" + new Date().getTime()
+        captchaUrlEmail.value = baseUrl + api.captcha + "?type=email&time=" + new Date().getTime()
     }else{
-        captchaUrl.value = host + api.captcha + "?time=" + new Date().getTime()
+        captchaUrl.value = baseUrl + api.captcha + "?time=" + new Date().getTime()
     }
 }
 
