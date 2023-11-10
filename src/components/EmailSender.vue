@@ -50,7 +50,7 @@ const formRules = {
 
 
 
-const props = defineProps(['dialogVisible','email'])
+const props = defineProps(['dialogVisible','email','api'])
 const emit = defineEmits(['close'])
 
 const form = reactive({})
@@ -70,23 +70,24 @@ const getEmailCode = (formEl)=>{
         console.log(valid)
         if(valid){
             console.log(props)
-            proxy.Request.get('/sendEmailCodeForResetPassword',{
+            proxy.Request.get(props.api,{
                 params: {
                     email: props.email,
                     captcha: form.captcha
                 }
             }).then((response)=>{
                 ElMessage({
-                    message: response.message,
+                    message: response.data.message,
                     type: 'success',
                 })
                 close();
             }).catch(function (error) {
                 console.log(error)
                 ElMessage({
-                    message: error.message,
+                    message: error.response.data.message,
                     type: 'error',
                 })
+                updateCaptcha('email')
             })
 
         }

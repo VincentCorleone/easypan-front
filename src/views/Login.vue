@@ -91,11 +91,14 @@ const onSubmit = () => {
   })
 }
 
-const openEmailSender = ()=>{
+const emailSenderApi = ref('')
+
+const openEmailSender = (api)=>{
   console.log("clickerd")
   loginFormRef.value.validateField("email", (valid)=>{
     if(valid){
       console.log("valid")
+      emailSenderApi.value = api
       dialogVisible.value = true
     }
   })
@@ -129,7 +132,7 @@ const switchPanel = (type) => {
 </script>
 
 <template>
-  <email-sender :dialogVisible="dialogVisible" :email="form.email" @close="closeEmailSender"></email-sender>
+  <email-sender :dialogVisible="dialogVisible" :email="form.email" :api="emailSenderApi" @close="closeEmailSender"></email-sender>
 
   <div class="login-bg">
     <div class="login-img">
@@ -157,7 +160,7 @@ const switchPanel = (type) => {
               </template>
             </el-input>
             <div class="getEmailCode">
-              <el-button type="primary" size="large" @click="openEmailSender()">获取验证码</el-button>
+              <el-button type="primary" size="large" @click="openEmailSender('/sendEmailCodeForResetPassword')">获取验证码</el-button>
             </div>
           </div>
         </el-form-item>
@@ -268,7 +271,7 @@ const switchPanel = (type) => {
               </template>
             </el-input>
             <div class="getEmailCode">
-              <el-button type="primary" size="large" @click="dialogVisible = true">获取验证码</el-button>
+              <el-button type="primary" size="large" @click="openEmailSender('/sendEmailCodeForRegister')">获取验证码</el-button>
             </div>
           </div>
         </el-form-item>
