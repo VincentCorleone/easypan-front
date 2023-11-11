@@ -157,7 +157,7 @@ const switchPanel = (type) => {
             <el-input size="large" placeholder="请输入邮箱验证码" v-model="form.emailCode">
               <template #prefix>
                 <el-icon :size="18">
-                  <Picture />
+                  <Message />
                 </el-icon>
               </template>
             </el-input>
@@ -268,7 +268,7 @@ const switchPanel = (type) => {
             <el-input size="large" placeholder="请输入邮箱验证码" v-model="form.emailCode">
               <template #prefix>
                 <el-icon :size="18">
-                  <Picture />
+                  <Message />
                 </el-icon>
               </template>
             </el-input>
