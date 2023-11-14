@@ -24,8 +24,9 @@
 </template>
 
 <script setup>
-import {ref,reactive, getCurrentInstance} from 'vue'
-import { ElMessage } from 'element-plus'
+import {ref,reactive, getCurrentInstance, nextTick} from 'vue'
+import { ElMessage, ElLoading } from 'element-plus'
+
 
 const { proxy } = getCurrentInstance();
 
@@ -71,18 +72,27 @@ const getEmailCode = (formEl)=>{
         console.log(valid)
         if(valid){
             console.log(props)
+            const loading = ElLoading.service({
+                text: '正在发送邮件验证码'
+            })
             proxy.Request.get(props.api,{
                 params: {
                     email: props.email,
                     captcha: form.captcha
                 }
             }).then((response)=>{
+                nextTick(() => {
+                    loading.close()
+                })
                 ElMessage({
                     message: response.data.message,
                     type: 'success',
                 })
                 close();
             }).catch(function (error) {
+                nextTick(() => {
+                    loading.close()
+                })
                 console.log(error)
                 ElMessage({
                     message: error.response.data.message,

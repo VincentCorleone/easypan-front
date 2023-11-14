@@ -1,7 +1,7 @@
 <script setup>
-import { ref,reactive } from 'vue'
+import { ref,reactive, getCurrentInstance, nextTick } from 'vue'
 
-
+import { ElMessage } from 'element-plus'
 
 const panelType = ref(1)
 const dialogVisible = ref(false)
@@ -21,6 +21,7 @@ const captchaUrlEmail = ref(baseUrl + api.captcha + "?type=email&time=" + new Da
 const captchaUrl = ref(baseUrl + api.captcha + "?time=" + new Date().getTime())
 
 
+const {proxy} = getCurrentInstance()
 
 const validatorEmail = (rule, value, callback) => {
     var pattern = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
@@ -83,13 +84,89 @@ const formRules = {
 const loginFormRef = ref(null)
 
 
-const onSubmit = () => {
-  console.log("submit")
+const resetPassword = () => {
   loginFormRef.value.validate((valid)=>{
     if(valid){
-      console.log(form.value)
+      proxy.Request.post("/user/resetPassword",{
+        email: form.email,
+        emailCode: form.emailCode,
+        password: form.password,
+        captcha: form.captcha
+      },{
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      }).then((response)=>{
+          ElMessage({
+              message: response.data.message,
+              type: 'success',
+          })
+      }).catch(function (error) {
+          ElMessage({
+              message: error.response.data.message,
+              type: 'error',
+          })
+          updateCaptcha()
+      })
     }
-    console.log("not valid")
+  })
+}
+
+const login = () => {
+  loginFormRef.value.validate((valid)=>{
+    if(valid){
+      proxy.Request.post("/user/login",{
+        email: form.email,
+        password: form.password,
+        captcha: form.captcha
+      },{
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      }).then((response)=>{
+          ElMessage({
+              message: response.data.message,
+              type: 'success',
+          })
+      }).catch(function (error) {
+          ElMessage({
+              message: error.response.data.message,
+              type: 'error',
+          })
+          updateCaptcha()
+      })
+    }
+  })
+}
+
+const register = () => {
+  loginFormRef.value.validate((valid)=>{
+    if(valid){
+      proxy.Request.post("/user/register",{
+              email: form.email,
+              emailCode: form.emailCode,
+              nickname: form.nickname,
+              password: form.password,
+              captcha: form.captcha,
+      },{
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      }).then((response)=>{
+          ElMessage({
+              message: response.data.message,
+              type: 'success',
+          })
+          panelType.value=1
+      }).catch(function (error) {
+          ElMessage({
+              message: error.response.data.message,
+              type: 'error',
+          })
+          updateCaptcha()
+      })
+      console.log(form)
+    }
   })
 }
 
@@ -202,7 +279,7 @@ const switchPanel = (type) => {
           </div>
         </el-form-item>
         <el-form-item>
-          <el-button class="login-btn" type="primary" @click="onSubmit()">重置密码</el-button>
+          <el-button class="login-btn" type="primary" @click="resetPassword()">重置密码</el-button>
         </el-form-item>
       </el-form>
       <el-form :model="form" :rules="formRules" ref="loginFormRef" class="login-form" v-if="panelType==1">
@@ -247,7 +324,7 @@ const switchPanel = (type) => {
           </div>
         </el-form-item>
         <el-form-item>
-          <el-button class="login-btn" type="primary" @click="console.log(form)">登录</el-button>
+          <el-button class="login-btn" type="primary" @click="login()">登录</el-button>
         </el-form-item>
 
 
@@ -322,7 +399,7 @@ const switchPanel = (type) => {
           </div>
         </el-form-item>
         <el-form-item>
-          <el-button class="login-btn" type="primary" @click="onSubmit">注册</el-button>
+          <el-button class="login-btn" type="primary" @click="register">注册</el-button>
         </el-form-item>
       </el-form>
     </div>
