@@ -101,6 +101,7 @@ const resetPassword = () => {
               message: response.data.message,
               type: 'success',
           })
+          switchPanel(1)
       }).catch(function (error) {
           ElMessage({
               message: error.response.data.message,
@@ -128,6 +129,9 @@ const login = () => {
               message: response.data.message,
               type: 'success',
           })
+          console.log("dashboard")
+          router.push("/dashboard")
+
       }).catch(function (error) {
           ElMessage({
               message: error.response.data.message,
@@ -157,7 +161,7 @@ const register = () => {
               message: response.data.message,
               type: 'success',
           })
-          panelType.value=1
+          switchPanel(1)
       }).catch(function (error) {
           ElMessage({
               message: error.response.data.message,
