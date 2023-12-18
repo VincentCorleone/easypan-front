@@ -1,6 +1,9 @@
 <script setup>
 import { ref,reactive, getCurrentInstance, nextTick } from 'vue'
 
+import { useRouter,useRoute } from 'vue-router';
+const router = useRouter()
+
 import { ElMessage } from 'element-plus'
 
 const panelType = ref(1)
@@ -131,7 +134,7 @@ const login = () => {
           })
           console.log("dashboard")
           router.push("/dashboard")
-
+          
       }).catch(function (error) {
           ElMessage({
               message: error.response.data.message,
