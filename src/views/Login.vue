@@ -133,7 +133,7 @@ const login = () => {
               type: 'success',
           })
           console.log("dashboard")
-          router.push("/dashboard")
+          router.push("/dashboard/files")
           
       }).catch(function (error) {
           ElMessage({
