@@ -1,7 +1,9 @@
 <script setup>
 
-import {ref} from 'vue'
+import {ref,getCurrentInstance} from 'vue'
 import { useRouter,useRoute } from 'vue-router';
+
+const {proxy} = getCurrentInstance()
 const router = useRouter()
 
 const currentMenuIndex=ref(0)
@@ -24,6 +26,22 @@ const selectMenu = (index) => {
     router.push(menus[index-1].path)
 }
 
+import { ElMessage } from 'element-plus'
+
+const logout = () => {
+    proxy.Request.get("/user/logout").then((response)=>{
+          ElMessage({
+              message: response.data.message,
+              type: 'success',
+          })
+          router.push("/")
+      }).catch(function (error) {
+          ElMessage({
+              message: error.response.data.message,
+              type: 'error',
+          })
+      })
+}
 </script>
 
 <style scoped>
@@ -106,7 +124,7 @@ const selectMenu = (index) => {
                 <el-dropdown-menu>
                     <el-dropdown-item>修改头像</el-dropdown-item>
                     <el-dropdown-item>修改密码</el-dropdown-item>
-                    <el-dropdown-item>退出</el-dropdown-item>
+                    <el-dropdown-item @click="logout()">退出</el-dropdown-item>
                 </el-dropdown-menu>
                 </template>
             </el-dropdown>
