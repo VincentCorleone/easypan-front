@@ -148,7 +148,9 @@ const logout = () => {
             </div>
         </div>
         <div class="content">
-            <RouterView></RouterView>
+            <router-view v-slot="{ Component }">
+                <component :is="Component" />
+            </router-view>
         </div>
     </div>
 </template>
