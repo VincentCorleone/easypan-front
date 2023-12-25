@@ -38,10 +38,10 @@ const loadFiles = () => {
       files.value = response.data.data;
     })
     .catch(function (error) {
-      //   ElMessage({
-      //       message: error.response.data.message,
-      //       type: 'error',
-      //   })
+        ElMessage({
+            message: error.response.data.message,
+            type: 'error',
+        })
     });
 };
 
