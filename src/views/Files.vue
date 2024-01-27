@@ -51,7 +51,7 @@ const files = ref([]);
 import { onMounted } from "vue";
 import { ElMessage } from "element-plus";
 
-import config from "../utils/config.js"
+import config from "../utils/config.js";
 
 const loadFiles = () => {
   proxy.Request.get("/file/loadFiles", {
@@ -77,20 +77,61 @@ const loadFiles = () => {
 
 onMounted(loadFiles);
 
-const upload = (file) => {
-  proxy.Request.post(
-    "/file/upload",
-    {
-      file: file.file,
-    },
-    {
-      headers: {
-        "Content-Type": "multipart/form-data",
+const upload = async (request) => {
+  if (request.file.size < 1024 * 10) {
+    proxy.Request.post(
+      "/file/upload",
+      {
+        file: request.file,
       },
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    ).then((response) => {
+      loadFiles();
+    });
+  } else {
+    const fileName = request.file.name;
+    const chunkSize = 1024 * 1024 * 10;
+    var chunks = Math.ceil(request.file.size / chunkSize);
+    for (let chunkIndex = 0; chunkIndex < chunks; chunkIndex++) {
+      var chunk = request.file.slice(
+        chunkSize * chunkIndex,
+        Math.min(chunkSize * (chunkIndex + 1), request.file.size)
+      );
+      var response = await proxy.Request.post(
+        "/file/upload",
+        {
+          file: chunk,
+          chunkIndex: chunkIndex,
+          chunks: chunks,
+          fileName: fileName,
+        },
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      if (chunkIndex < chunks - 1 && response.data.code !== 203) {
+        ElMessage({
+          message: "文件分片上传出错，请重试",
+          type: "error",
+        });
+        break;
+      }
+
+      if (chunkIndex == chunks - 1) {
+        ElMessage({
+          message: response.data.message,
+          type: "success",
+        });
+        loadFiles();
+      }
     }
-  ).then((response) => {
-    loadFiles();
-  });
+  }
 };
 
 const downloadFile = (fileName) => {
@@ -107,7 +148,7 @@ const downloadFile = (fileName) => {
       //       type: 'success',
       //   })
       const code = response.data.data.code;
-      
+
       window.open(config.baseUrl + "/file/downloadFile?code=" + code);
     })
     .catch(function (error) {
