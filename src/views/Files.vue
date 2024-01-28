@@ -2,29 +2,72 @@
 .icon-download {
   cursor: pointer;
 }
+
+.buttons {
+  display: flex;
+}
+
+.clickable {
+  color: cadetblue;
+  cursor: pointer;
+}
 </style>
 
 <template>
-  <el-upload :http-request="upload">
-    <el-button type="primary">
-      <span class="iconfont icon-upload"></span>
-      Primary
+  <div class="buttons">
+    <el-upload :http-request="upload">
+      <el-button type="primary">
+        <span class="iconfont icon-upload"></span>
+        上传
+      </el-button>
+    </el-upload>
+    <el-button @click="newFolder" type="success">
+      <span class="iconfont icon-folder-add"></span>
+      新建文件夹
     </el-button>
-  </el-upload>
+  </div>
+
+  <div>
+    <template v-if="paths.length > 0">
+      <span @click="returnFolder()" class="clickable">返回上一级</span>
+      <span> | </span>
+      <span @click="jumpFolder(-1)" class="clickable">根目录</span>
+      <span v-for="(item, index) in paths">
+        <span> > </span>
+
+        <span
+          class="clickable"
+          @click="jumpFolder(index)"
+          v-if="index < paths.length - 1"
+          >{{ item }}</span
+        >
+        <span v-else>{{ item }}</span>
+      </span>
+    </template>
+    <template v-else>
+      <span>根目录</span>
+    </template>
+  </div>
 
   <el-table :data="files" style="width: 100%">
     <el-table-column prop="fileName" label="文件名" width="180">
       <template #default="scope">
-        <span>{{ scope.row.fileName }}</span>
-        <span class="op">
-          <span
-            v-if="!scope.row.isDirectory"
-            class="iconfont icon-download"
-            @click="downloadFile(scope.row.fileName)"
-            >下载</span
-          >
-        </span>
-        <!-- <el-popover effect="light" trigger="hover" placement="top" width="auto">
+        <div
+          v-if="scope.row.isDirectory"
+          @click="enterFolder(scope.row.fileName)"
+        >
+          <span>{{ scope.row.fileName }}</span>
+        </div>
+        <div v-else>
+          <span>{{ scope.row.fileName }}</span>
+          <span class="op">
+            <span
+              class="iconfont icon-download"
+              @click="downloadFile(scope.row.fileName)"
+              >下载</span
+            >
+          </span>
+          <!-- <el-popover effect="light" trigger="hover" placement="top" width="auto">
           <template #default>
             <div>name: {{ scope.row.fileName }}</div>
             <div>address: {{ scope.row.address }}</div>
@@ -33,6 +76,7 @@
             <el-tag>{{ scope.row.name }}</el-tag>
           </template>
         </el-popover> -->
+        </div>
       </template>
     </el-table-column>
     <el-table-column prop="lastModified" label="最近修改时间" width="180" />
@@ -45,13 +89,82 @@ import { getCurrentInstance, ref } from "vue";
 
 const { proxy } = getCurrentInstance();
 
-const currentPath = ref("/");
 const files = ref([]);
 
 import { onMounted } from "vue";
-import { ElMessage } from "element-plus";
+import { ElMessage, ElMessageBox } from "element-plus";
 
 import config from "../utils/config.js";
+
+import { reactive, computed } from "vue";
+
+const paths = reactive([]);
+
+// a computed ref
+const currentPath = computed(() => {
+  if (paths.length == 0) {
+    return "/";
+  } else {
+    return "/" + paths.join("/") + "/";
+  }
+});
+
+const jumpFolder = (index) => {
+  const length = paths.length;
+  while (index < length - 1) {
+    paths.pop();
+    index++;
+  }
+  loadFiles();
+};
+
+const returnFolder = () => {
+  paths.pop();
+  loadFiles();
+};
+
+const enterFolder = (folderName) => {
+  paths.push(folderName);
+  loadFiles();
+  ElMessage({
+    message: folderName,
+    type: "success",
+  });
+};
+const newFolder = () => {
+  ElMessageBox.prompt("请输入新的文件夹的名称", "新建文件夹", {
+    confirmButtonText: "确认",
+    cancelButtonText: "取消",
+    inputValidator: (value) => {
+      console.log("sfdffd");
+      if (value == null || value.length == 0) {
+        return "文件夹名称不能为空";
+      } else if (value.includes("/")) {
+        return "文件夹名称不能包含’/‘'";
+      }
+      return true;
+    },
+  })
+    .then(({ value }) => {
+      proxy.Request.post(
+        "/file/newFolder",
+        {
+          currentPath: currentPath.value,
+          folderName: value,
+        },
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      ).then((response) => {
+        loadFiles();
+      });
+    })
+    .catch(() => {
+      console.log("用户取消输入");
+    });
+};
 
 const loadFiles = () => {
   proxy.Request.get("/file/loadFiles", {
