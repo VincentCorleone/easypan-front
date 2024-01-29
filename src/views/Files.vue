@@ -191,11 +191,12 @@ const loadFiles = () => {
 onMounted(loadFiles);
 
 const upload = async (request) => {
-  if (request.file.size < 1024 * 10) {
+  if (request.file.size < 1024 * 1024 * 10) {
     proxy.Request.post(
       "/file/upload",
       {
         file: request.file,
+        currentPath: currentPath.value,
       },
       {
         headers: {
@@ -221,6 +222,7 @@ const upload = async (request) => {
           chunkIndex: chunkIndex,
           chunks: chunks,
           fileName: fileName,
+          currentPath: currentPath.value,
         },
         {
           headers: {
