@@ -203,9 +203,16 @@ const upload = async (request) => {
           "Content-Type": "multipart/form-data",
         },
       }
-    ).then((response) => {
-      loadFiles();
-    });
+    )
+      .then((response) => {
+        loadFiles();
+      })
+      .catch(function (error) {
+        ElMessage({
+          message: error.response.data.message,
+          type: "error",
+        });
+      });
   } else {
     const fileName = request.file.name;
     const chunkSize = 1024 * 1024 * 10;
@@ -229,7 +236,12 @@ const upload = async (request) => {
             "Content-Type": "multipart/form-data",
           },
         }
-      );
+      ).catch(function (error) {
+        ElMessage({
+          message: error.response.data.message,
+          type: "error",
+        });
+      });
       if (chunkIndex < chunks - 1 && response.data.code !== 203) {
         ElMessage({
           message: "文件分片上传出错，请重试",
