@@ -20,6 +20,9 @@ app.use(ElementPlus)
 import EmailSender from './components/EmailSender.vue';
 app.component("email-sender",EmailSender)
 
+import UploadProgress from './views/UploadProgress.vue'
+app.component('upload-progress',UploadProgress)
+
 import Request from './utils/Request.js'
 app.config.globalProperties.Request = Request
 
