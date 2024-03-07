@@ -210,6 +210,57 @@ function generateUUID() {
 
 const emit = defineEmits(["updateUploadProgress"]);
 
+import SparkMD5 from "spark-md5";
+
+function getFileMD5(file, originFile) {
+  const CHUNK_SIZE = 10 * 1024 * 1024; // 10M
+
+  const spark = new SparkMD5.ArrayBuffer();
+  const fileReader = new FileReader();
+  // 获取文件分片对象（注意它的兼容性，在不同浏览器的写法不同）
+  const blobSlice =
+    File.prototype.slice ||
+    File.prototype.mozSlice ||
+    File.prototype.webkitSlice;
+  // 当前分片下标
+  let currentChunk = 0;
+  // 分片总数(向下取整)
+  const chunks = Math.ceil(file.size / CHUNK_SIZE);
+  // 加载下一个分片
+  const loadNext = () => {
+    const start = currentChunk * CHUNK_SIZE;
+    const end =
+      start + CHUNK_SIZE >= file.size ? file.size : start + CHUNK_SIZE;
+    // 文件分片操作，读取下一分片(fileReader.readAsArrayBuffer操作会触发onload事件)
+    fileReader.readAsArrayBuffer(blobSlice.call(file, start, end));
+  };
+  loadNext();
+
+  return new Promise((resolve, reject) => {
+    fileReader.onload = function (e) {
+      spark.append(e.target.result);
+
+      const toEmitFile = JSON.parse(JSON.stringify(originFile));
+      toEmitFile.md5Progress = Math.floor((currentChunk / chunks) * 100);
+      toEmitFile.event = "updateMd5";
+      // console.log(toEmitFile);
+      emit("updateUploadProgress", toEmitFile);
+
+      if (currentChunk < chunks) {
+        currentChunk++;
+        loadNext();
+      } else {
+        // 该文件的md5值
+        const md5 = spark.end();
+        resolve(md5);
+      }
+    };
+    fileReader.onerror = function () {
+      reject(new Error("文件读取出错，请检查该文件！"));
+    };
+  });
+}
+
 const upload = async (request) => {
   const fileId = generateUUID();
   const originFile = {
@@ -236,6 +287,7 @@ const upload = async (request) => {
       .then((response) => {
         const toEmitFile = JSON.parse(JSON.stringify(originFile));
         toEmitFile.uploadProgress = 100;
+        toEmitFile.event = "updateUpload";
         emit("updateUploadProgress", toEmitFile);
         loadFiles();
       })
@@ -246,6 +298,8 @@ const upload = async (request) => {
         });
       });
   } else {
+    //计算MD5判断是否秒传
+    const md5 = await getFileMD5(request.file, originFile);
     const fileName = request.file.name;
     const chunkSize = 1024 * 1024 * 10;
     var chunks = Math.ceil(request.file.size / chunkSize);
@@ -262,6 +316,7 @@ const upload = async (request) => {
           chunks: chunks,
           fileName: fileName,
           currentPath: currentPath.value,
+          md5: md5,
         },
         {
           headers: {
@@ -276,7 +331,19 @@ const upload = async (request) => {
       });
       const toEmitFile = JSON.parse(JSON.stringify(originFile));
       toEmitFile.uploadProgress = Math.floor(((chunkIndex + 1) / chunks) * 100);
+      toEmitFile.event = "updateUpload";
       emit("updateUploadProgress", toEmitFile);
+      if (chunkIndex == 0 && response.data.code == 205) {
+        const toEmitFile = JSON.parse(JSON.stringify(originFile));
+        toEmitFile.uploadProgress = 100;
+        toEmitFile.event = "updateUpload";
+        emit("updateUploadProgress", toEmitFile);
+        ElMessage({
+          message: "文件秒传成功",
+          type: "sucess",
+        });
+        break;
+      }
       if (chunkIndex < chunks - 1 && response.data.code !== 203) {
         ElMessage({
           message: "文件分片上传出错，请重试",

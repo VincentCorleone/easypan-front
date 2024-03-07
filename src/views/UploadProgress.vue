@@ -3,19 +3,32 @@
   <div v-for="file in files" :key="file.fileId">
     <span>{{ file.fileName }}</span>
 
-    <el-progress
-      v-if="file.uploadProgress == 100"
-      :percentage="file.uploadProgress"
-      :stroke-width="15"
-      striped
-    />
-    <el-progress
-      v-else
-      :percentage="file.uploadProgress"
-      :stroke-width="15"
-      striped
-      striped-flow
-    />
+    <div>
+      <el-progress
+        v-if="file.md5Progress == 100"
+        type="circle"
+        :percentage="file.md5Progress"
+        status="success"
+      />
+      <el-progress v-else type="circle" :percentage="file.md5Progress" />
+    </div>
+
+    <div>
+      <el-progress
+        v-if="file.uploadProgress == 100"
+        :percentage="file.uploadProgress"
+        :stroke-width="15"
+        status="success"
+        striped
+      />
+      <el-progress
+        v-else
+        :percentage="file.uploadProgress"
+        :stroke-width="15"
+        striped
+        striped-flow
+      />
+    </div>
   </div>
   <!-- <span @click="test">{{ filesB }}</span> -->
 </template>
@@ -72,11 +85,15 @@ function updateUploadProgress(file) {
   // }
   // debugger;
   // console.log("before:", files.value);
-  console.log();
+  console.log(file);
   if (files[file.fileId] == undefined) {
     files[file.fileId] = file;
   } else {
-    files[file.fileId].uploadProgress = file.uploadProgress;
+    if (file.event == "updateUpload") {
+      files[file.fileId].uploadProgress = file.uploadProgress;
+    } else if (file.event == "updateMd5") {
+      files[file.fileId].md5Progress = file.md5Progress;
+    }
   }
   // console.log("after:", files.value);
 }
