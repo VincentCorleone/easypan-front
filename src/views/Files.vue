@@ -342,6 +342,7 @@ const upload = async (request) => {
           message: "文件秒传成功",
           type: "success",
         });
+        loadFiles();
         break;
       }
       if (chunkIndex < chunks - 1 && response.data.code !== 203) {
