@@ -340,7 +340,7 @@ const upload = async (request) => {
         emit("updateUploadProgress", toEmitFile);
         ElMessage({
           message: "文件秒传成功",
-          type: "sucess",
+          type: "success",
         });
         break;
       }
