@@ -54,7 +54,12 @@
     <div class="close" @click="close">
       <span class="iconfont icon-close2"></span>
     </div>
-    <div class="window-content"><div id="player" ref="player"></div></div>
+    <div class="window-content">
+      <div class="title">{{ title }}</div>
+      <div class="content-body">
+        <div id="player" ref="player"></div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -66,6 +71,7 @@ const type = {
   video: ["mp4", "avi", "rmvb", "mkv", "mov"],
 };
 const visible = ref(false);
+const title = ref("");
 
 const player = ref();
 
@@ -88,6 +94,7 @@ function initPlayer(url) {
 
 function show(currentPath, fileName) {
   visible.value = true;
+  title.value = fileName;
   nextTick(() =>
     initPlayer(
       // http://127.0.0.1:5173/api/file/previewVideo/kdkc.mkv/index.m3u8
