@@ -57,23 +57,47 @@
     <div class="window-content">
       <div class="title">{{ title }}</div>
       <div class="content-body">
-        <div id="player" ref="player"></div>
+        <div v-if="type == 'video'" id="player" ref="player"></div>
+        <MusicPreviewer
+          :fileName="g_fileName"
+          :currentPath="g_currentPath"
+          v-if="type == 'music'"
+        ></MusicPreviewer>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { nextTick, ref } from "vue";
+import { computed, nextTick, ref } from "vue";
 import DPlayer from "dplayer";
+import MusicPreviewer from "./previewers/MusicPreviewer.vue";
 
-const type = {
+const types = {
   video: ["mp4", "avi", "rmvb", "mkv", "mov"],
+  music: [
+    "mp3",
+    "wav",
+    "wma",
+    "mp2",
+    "flac",
+    "midi",
+    "ra",
+    "ape",
+    "aac",
+    "cda",
+  ],
 };
+
+const type = ref(null);
+
 const visible = ref(false);
 const title = ref("");
 
 const player = ref();
+
+const g_fileName = ref(null);
+const g_currentPath = ref(null);
 
 function initPlayer(url) {
   const dp = new DPlayer({
@@ -95,12 +119,22 @@ function initPlayer(url) {
 function show(currentPath, fileName) {
   visible.value = true;
   title.value = fileName;
-  nextTick(() =>
-    initPlayer(
-      // http://127.0.0.1:5173/api/file/previewVideo/kdkc.mkv/index.m3u8
-      "/api/file/previewVideo" + currentPath + fileName + "/index.m3u8"
-    )
+
+  g_currentPath.value = currentPath;
+  g_fileName.value = fileName;
+
+  type.value = Object.keys(types).find((key) =>
+    types[key].includes(fileName.substr(fileName.lastIndexOf(".") + 1))
   );
+
+  if (type.value == "video") {
+    nextTick(() =>
+      initPlayer(
+        // http://127.0.0.1:5173/api/file/previewVideo/kdkc.mkv/index.m3u8
+        "/api/file/previewVideo" + currentPath + fileName + "/index.m3u8"
+      )
+    );
+  }
 }
 
 function close() {
