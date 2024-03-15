@@ -167,7 +167,7 @@ function previewFile(fileName) {
 
   if (image.includes(fileName.substr(fileName.lastIndexOf(".") + 1))) {
     imageUrl.value =
-      "/api/file/previewImage?currentPath=" +
+      "/api/file/previewFile?currentPath=" +
       currentPath.value +
       "&fileName=" +
       fileName;
