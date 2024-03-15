@@ -83,6 +83,11 @@
     <el-table-column prop="size" label="大小" />
   </el-table>
   <PreviewContainer ref="previewContainerRef"></PreviewContainer>
+  <ElImageViewer
+    v-if="showImageViewer"
+    :url-list="[imageUrl]"
+    :onClose="closeViewer"
+  ></ElImageViewer>
 </template>
 
 <script setup>
@@ -93,7 +98,7 @@ const { proxy } = getCurrentInstance();
 const files = ref([]);
 
 import { onMounted } from "vue";
-import { ElMessage, ElMessageBox } from "element-plus";
+import { ElMessage, ElMessageBox, ElImageViewer } from "element-plus";
 
 import PreviewContainer from "../components/PreviewContainer.vue";
 
@@ -104,6 +109,7 @@ import { reactive, computed } from "vue";
 const paths = reactive([]);
 
 const previewContainerRef = ref();
+const showImageViewer = ref(false);
 
 // a computed ref
 const currentPath = computed(() => {
@@ -137,8 +143,38 @@ const enterFolder = (folderName) => {
   });
 };
 
+const imageUrl = ref("");
+
+function closeViewer() {
+  showImageViewer.value = false;
+}
+
 function previewFile(fileName) {
-  previewContainerRef.value.show(currentPath.value, fileName);
+  const image = [
+    "jpeg",
+    "jpg",
+    "png",
+    "gif",
+    "bmp",
+    "dds",
+    "psd",
+    "pdt",
+    "webp",
+    "xmp",
+    "svg",
+    "tiff",
+  ];
+
+  if (image.includes(fileName.substr(fileName.lastIndexOf(".") + 1))) {
+    imageUrl.value =
+      "/api/file/previewImage?currentPath=" +
+      currentPath.value +
+      "&fileName=" +
+      fileName;
+    showImageViewer.value = true;
+  } else {
+    previewContainerRef.value.show(currentPath.value, fileName);
+  }
 }
 
 const newFolder = () => {
