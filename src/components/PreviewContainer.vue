@@ -57,7 +57,11 @@
     <div class="window-content">
       <div class="title">{{ title }}</div>
       <div class="content-body">
-        <div v-if="type == 'video'" id="player" ref="player"></div>
+        <VideoPreviewer
+          :fileName="g_fileName"
+          :currentPath="g_currentPath"
+          v-if="type == 'video'"
+        ></VideoPreviewer>
         <MusicPreviewer
           :fileName="g_fileName"
           :currentPath="g_currentPath"
@@ -69,9 +73,10 @@
 </template>
 
 <script setup>
-import { computed, nextTick, ref } from "vue";
-import DPlayer from "dplayer";
+import { ref } from "vue";
+
 import MusicPreviewer from "./previewers/MusicPreviewer.vue";
+import VideoPreviewer from "./previewers/VideoPreviewer.vue";
 
 const types = {
   video: ["mp4", "avi", "rmvb", "mkv", "mov"],
@@ -99,23 +104,6 @@ const player = ref();
 const g_fileName = ref(null);
 const g_currentPath = ref(null);
 
-function initPlayer(url) {
-  const dp = new DPlayer({
-    container: player.value,
-    video: {
-      url,
-      tyle: "customHls",
-      customType: {
-        customHls: function (video, player) {
-          const hls = new Hls();
-          hls.loadSource(video.src);
-          hls.attachMedia(video);
-        },
-      },
-    },
-  });
-}
-
 function show(currentPath, fileName) {
   visible.value = true;
   title.value = fileName;
@@ -126,15 +114,6 @@ function show(currentPath, fileName) {
   type.value = Object.keys(types).find((key) =>
     types[key].includes(fileName.substr(fileName.lastIndexOf(".") + 1))
   );
-
-  if (type.value == "video") {
-    nextTick(() =>
-      initPlayer(
-        // http://127.0.0.1:5173/api/file/previewVideo/kdkc.mkv/index.m3u8
-        "/api/file/previewVideo" + currentPath + fileName + "/index.m3u8"
-      )
-    );
-  }
 }
 
 function close() {
