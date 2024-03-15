@@ -7,6 +7,8 @@ const router = useRouter();
 
 const currentMenuIndex = ref(0);
 
+const showUploadProgress = ref(false);
+
 const menus = [
   {
     path: "/dashboard/files",
@@ -47,6 +49,7 @@ const logout = () => {
 const uploadProgressRef = ref(null);
 
 const updateUploadProgress = (file) => {
+  showUploadProgress.value = true;
   uploadProgressRef.value?.updateUploadProgress(file);
 };
 </script>
@@ -114,7 +117,7 @@ const updateUploadProgress = (file) => {
       <div id="logo-text">Easy云盘</div>
     </div>
     <div class="right-panel">
-      <el-popover :visible="true">
+      <el-popover trigger="click" v-model:visible="showUploadProgress">
         <template #reference>
           <div>
             <span class="transfer-progress iconfont icon-transfer"></span>

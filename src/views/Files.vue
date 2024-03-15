@@ -58,7 +58,7 @@
         >
           <span>{{ scope.row.fileName }}</span>
         </div>
-        <div v-else>
+        <div v-else @click="previewFile(scope.row.fileName)">
           <span>{{ scope.row.fileName }}</span>
           <span class="op">
             <span
@@ -82,6 +82,7 @@
     <el-table-column prop="lastModified" label="最近修改时间" width="180" />
     <el-table-column prop="size" label="大小" />
   </el-table>
+  <PreviewContainer ref="previewContainerRef"></PreviewContainer>
 </template>
 
 <script setup>
@@ -94,11 +95,15 @@ const files = ref([]);
 import { onMounted } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 
+import PreviewContainer from "../components/PreviewContainer.vue";
+
 import config from "../utils/config.js";
 
 import { reactive, computed } from "vue";
 
 const paths = reactive([]);
+
+const previewContainerRef = ref();
 
 // a computed ref
 const currentPath = computed(() => {
@@ -131,6 +136,11 @@ const enterFolder = (folderName) => {
     type: "success",
   });
 };
+
+function previewFile(fileName) {
+  previewContainerRef.value.show(currentPath.value, fileName);
+}
+
 const newFolder = () => {
   ElMessageBox.prompt("请输入新的文件夹的名称", "新建文件夹", {
     confirmButtonText: "确认",
