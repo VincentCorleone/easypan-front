@@ -56,9 +56,14 @@
           v-if="scope.row.isDirectory"
           @click="enterFolder(scope.row.fileName)"
         >
+          <FileIcon :fileName="'.dir'"></FileIcon>
           <span>{{ scope.row.fileName }}</span>
         </div>
         <div v-else @click="previewFile(scope.row.fileName)">
+          <FileIcon
+            :currentPath="currentPath"
+            :fileName="scope.row.fileName"
+          ></FileIcon>
           <span>{{ scope.row.fileName }}</span>
           <span class="op">
             <span
@@ -101,6 +106,8 @@ import { onMounted } from "vue";
 import { ElMessage, ElMessageBox, ElImageViewer } from "element-plus";
 
 import PreviewContainer from "../components/PreviewContainer.vue";
+
+import FileIcon from "../components/FileIcon.vue";
 
 import config from "../utils/config.js";
 
