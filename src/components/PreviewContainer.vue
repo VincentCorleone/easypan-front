@@ -103,6 +103,9 @@
           "
           v-else-if="type == 'txt'"
         ></TxtPreviewer>
+        <div v-else>
+          <p>该类型不支持预览，请直接下载</p>
+        </div>
       </div>
     </div>
   </div>
