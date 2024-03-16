@@ -76,6 +76,15 @@
           "
           v-if="type == 'docx'"
         ></DocxPreviewer>
+        <ExcelPreviewer
+          :url="
+            '/file/previewFile?currentPath=' +
+            g_currentPath +
+            '&fileName=' +
+            g_fileName
+          "
+          v-if="type == 'xlsx'"
+        ></ExcelPreviewer>
       </div>
     </div>
   </div>
@@ -87,6 +96,7 @@ import { ref } from "vue";
 import MusicPreviewer from "./previewers/MusicPreviewer.vue";
 import VideoPreviewer from "./previewers/VideoPreviewer.vue";
 import DocxPreviewer from "./previewers/DocxPreviewer.vue";
+import ExcelPreviewer from "./previewers/ExcelPreviewer.vue";
 
 const types = {
   video: ["mp4", "avi", "rmvb", "mkv", "mov"],
@@ -103,6 +113,7 @@ const types = {
     "cda",
   ],
   docx: ["docx"],
+  xlsx: ["xlsx"],
 };
 
 const type = ref(null);
