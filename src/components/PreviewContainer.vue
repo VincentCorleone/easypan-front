@@ -67,6 +67,15 @@
           :currentPath="g_currentPath"
           v-if="type == 'music'"
         ></MusicPreviewer>
+        <DocxPreviewer
+          :url="
+            '/file/previewFile?currentPath=' +
+            g_currentPath +
+            '&fileName=' +
+            g_fileName
+          "
+          v-if="type == 'docx'"
+        ></DocxPreviewer>
       </div>
     </div>
   </div>
@@ -77,6 +86,7 @@ import { ref } from "vue";
 
 import MusicPreviewer from "./previewers/MusicPreviewer.vue";
 import VideoPreviewer from "./previewers/VideoPreviewer.vue";
+import DocxPreviewer from "./previewers/DocxPreviewer.vue";
 
 const types = {
   video: ["mp4", "avi", "rmvb", "mkv", "mov"],
@@ -92,6 +102,7 @@ const types = {
     "aac",
     "cda",
   ],
+  docx: ["docx"],
 };
 
 const type = ref(null);
