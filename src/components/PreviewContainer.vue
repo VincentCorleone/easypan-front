@@ -65,7 +65,7 @@
         <MusicPreviewer
           :fileName="g_fileName"
           :currentPath="g_currentPath"
-          v-if="type == 'music'"
+          v-else-if="type == 'music'"
         ></MusicPreviewer>
         <DocxPreviewer
           :url="
@@ -74,7 +74,7 @@
             '&fileName=' +
             g_fileName
           "
-          v-if="type == 'docx'"
+          v-else-if="type == 'docx'"
         ></DocxPreviewer>
         <ExcelPreviewer
           :url="
@@ -83,7 +83,7 @@
             '&fileName=' +
             g_fileName
           "
-          v-if="type == 'xlsx'"
+          v-else-if="type == 'xlsx'"
         ></ExcelPreviewer>
         <PdfPreviewer
           :url="
@@ -92,8 +92,17 @@
             '&fileName=' +
             g_fileName
           "
-          v-if="type == 'pdf'"
+          v-else-if="type == 'pdf'"
         ></PdfPreviewer>
+        <TxtPreviewer
+          :url="
+            '/file/previewFile?currentPath=' +
+            g_currentPath +
+            '&fileName=' +
+            g_fileName
+          "
+          v-else-if="type == 'txt'"
+        ></TxtPreviewer>
       </div>
     </div>
   </div>
@@ -107,6 +116,7 @@ import VideoPreviewer from "./previewers/VideoPreviewer.vue";
 import DocxPreviewer from "./previewers/DocxPreviewer.vue";
 import ExcelPreviewer from "./previewers/ExcelPreviewer.vue";
 import PdfPreviewer from "./previewers/PdfPreviewer.vue";
+import TxtPreviewer from "./previewers/TxtPreviewer.vue";
 
 const types = {
   video: ["mp4", "avi", "rmvb", "mkv", "mov"],
@@ -125,6 +135,7 @@ const types = {
   docx: ["docx"],
   xlsx: ["xlsx"],
   pdf: ["pdf"],
+  txt: ["txt"],
 };
 
 const type = ref(null);

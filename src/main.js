@@ -17,6 +17,11 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 app.use(router)
 app.use(ElementPlus)
 
+import HlJsVuePlugin from "@highlightjs/vue-plugin"
+import "highlight.js/styles/atom-one-light.css"
+import "highlight.js/lib/common"
+app.use(HlJsVuePlugin)
+
 import EmailSender from './components/EmailSender.vue';
 app.component("email-sender",EmailSender)
 
