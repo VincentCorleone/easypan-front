@@ -30,7 +30,7 @@
     }
   }
   .window-content {
-    position: absolute;
+    position: fixed;
     top: 0px;
     z-index: 201;
     background: #fff;

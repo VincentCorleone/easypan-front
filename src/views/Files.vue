@@ -11,6 +11,11 @@
   color: cadetblue;
   cursor: pointer;
 }
+
+.fileName {
+  display: flex;
+  justify-content: space-between;
+}
 </style>
 
 <template>
