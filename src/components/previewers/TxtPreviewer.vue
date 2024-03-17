@@ -30,7 +30,6 @@ const readTxt = async () => {
   reader.onload = () => {
     textContent.value = reader.result;
   };
-  debugger;
   reader.readAsText(blobResult.value, "utf8");
 };
 
