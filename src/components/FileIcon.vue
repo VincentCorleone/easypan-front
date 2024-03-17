@@ -58,7 +58,7 @@ onMounted(async () => {
       import.meta.url
     ).href;
   } else if (types.image.includes(ext)) {
-    const result = proxy.Request({
+    const result = await proxy.Request({
       url:
         "/file/getCover?currentPath=" +
         props.currentPath +
@@ -80,7 +80,7 @@ onMounted(async () => {
   } else if (types.music.includes(ext)) {
     url.value = new URL(`../assets/icon-image/music.png`, import.meta.url).href;
   } else if (types.video.includes(ext)) {
-    const result = proxy.Request({
+    const result = await proxy.Request({
       url:
         "/file/getCover?currentPath=" +
         props.currentPath +
