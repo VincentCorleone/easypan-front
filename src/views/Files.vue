@@ -55,27 +55,50 @@
   </div>
 
   <el-table :data="files" style="width: 100%">
-    <el-table-column prop="fileName" label="文件名" width="180">
+    <el-table-column prop="fileName" label="文件名" min-width="500">
       <template #default="scope">
         <div
           v-if="scope.row.isDirectory"
+          class="fileName"
           @click="enterFolder(scope.row.fileName)"
         >
-          <FileIcon :fileName="'.dir'"></FileIcon>
-          <span>{{ scope.row.fileName }}</span>
+          <span>
+            <FileIcon :fileName="'.dir'"></FileIcon>
+            <span>{{ scope.row.fileName }}</span>
+          </span>
+          <span>
+            <span class="iconfont icon-share1">分享</span>
+            <span
+              class="iconfont icon-del clickable"
+              @click.stop="deleteFile(scope.row.fileName)"
+              >删除</span
+            >
+            <span class="iconfont icon-edit">重命名</span>
+            <span class="iconfont icon-move">移动</span>
+          </span>
         </div>
-        <div v-else @click="previewFile(scope.row.fileName)">
-          <FileIcon
-            :currentPath="currentPath"
-            :fileName="scope.row.fileName"
-          ></FileIcon>
-          <span>{{ scope.row.fileName }}</span>
+        <div v-else @click="previewFile(scope.row.fileName)" class="fileName">
+          <span>
+            <FileIcon
+              :currentPath="currentPath"
+              :fileName="scope.row.fileName"
+            ></FileIcon>
+            <span>{{ scope.row.fileName }}</span>
+          </span>
           <span class="op">
             <span
               class="iconfont icon-download"
-              @click="downloadFile(scope.row.fileName)"
+              @click.stop="downloadFile(scope.row.fileName)"
               >下载</span
             >
+            <span class="iconfont icon-share1">分享</span>
+            <span
+              class="iconfont icon-del clickable"
+              @click.stop="deleteFile(scope.row.fileName)"
+              >删除</span
+            >
+            <span class="iconfont icon-edit">重命名</span>
+            <span class="iconfont icon-move">移动</span>
           </span>
           <!-- <el-popover effect="light" trigger="hover" placement="top" width="auto">
           <template #default>
@@ -420,6 +443,28 @@ const upload = async (request) => {
       }
     }
   }
+};
+
+const deleteFile = (fileName) => {
+  proxy.Request.get("/file/delete", {
+    params: {
+      currentPath: currentPath.value,
+      fileName: fileName,
+    },
+  })
+    .then((response) => {
+      ElMessage({
+        message: response.data.message,
+        type: "success",
+      });
+      loadFiles();
+    })
+    .catch(function (error) {
+      ElMessage({
+        message: error.response.data.message,
+        type: "error",
+      });
+    });
 };
 
 const downloadFile = (fileName) => {
