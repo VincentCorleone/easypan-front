@@ -16,6 +16,14 @@
   display: flex;
   justify-content: space-between;
 }
+
+.op {
+  display: none;
+}
+
+.fileName:hover .op {
+  display: block;
+}
 </style>
 
 <template>
@@ -54,7 +62,7 @@
     </template>
   </div>
 
-  <el-table :data="files" style="width: 100%">
+  <el-table row-key="fileName" :data="files" style="width: 100%">
     <el-table-column prop="fileName" label="文件名" min-width="500">
       <template #default="scope">
         <div
@@ -66,7 +74,7 @@
             <FileIcon :fileName="'.dir'"></FileIcon>
             <span>{{ scope.row.fileName }}</span>
           </span>
-          <span>
+          <span class="op">
             <span class="iconfont icon-share1">分享</span>
             <span
               class="iconfont icon-del clickable"
