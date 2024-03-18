@@ -81,7 +81,11 @@
               @click.stop="deleteFile(scope.row.fileName)"
               >删除</span
             >
-            <span class="iconfont icon-edit">重命名</span>
+            <span
+              class="iconfont icon-edit clickable"
+              @click.stop="renameFile(scope.row.fileName)"
+              >重命名</span
+            >
             <span class="iconfont icon-move">移动</span>
           </span>
         </div>
@@ -105,7 +109,11 @@
               @click.stop="deleteFile(scope.row.fileName)"
               >删除</span
             >
-            <span class="iconfont icon-edit">重命名</span>
+            <span
+              class="iconfont icon-edit clickable"
+              @click.stop="renameFile(scope.row.fileName)"
+              >重命名</span
+            >
             <span class="iconfont icon-move">移动</span>
           </span>
           <!-- <el-popover effect="light" trigger="hover" placement="top" width="auto">
@@ -451,6 +459,47 @@ const upload = async (request) => {
       }
     }
   }
+};
+
+const renameFile = (fileName) => {
+  ElMessageBox.prompt("请输入新的名称", "重命名", {
+    confirmButtonText: "确认",
+    cancelButtonText: "取消",
+    inputValue: fileName,
+    inputValidator: (value) => {
+      if (value == null || value.length == 0) {
+        return "名称不能为空";
+      } else if (value.includes("/")) {
+        return "名称不能包含’/‘'";
+      }
+      return true;
+    },
+  })
+    .then(({ value }) => {
+      proxy.Request.get("/file/rename", {
+        params: {
+          currentPath: currentPath.value,
+          fileName: fileName,
+          newName: value,
+        },
+      })
+        .then((response) => {
+          ElMessage({
+            message: response.data.message,
+            type: "success",
+          });
+          loadFiles();
+        })
+        .catch(function (error) {
+          ElMessage({
+            message: error.response.data.message,
+            type: "error",
+          });
+        });
+    })
+    .catch(() => {
+      console.log("用户取消输入");
+    });
 };
 
 const deleteFile = (fileName) => {
