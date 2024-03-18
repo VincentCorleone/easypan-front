@@ -86,7 +86,11 @@
               @click.stop="renameFile(scope.row.fileName)"
               >重命名</span
             >
-            <span class="iconfont icon-move">移动</span>
+            <span
+              class="iconfont icon-move clickable"
+              @click.stop="moveFile(scope.row.fileName)"
+              >移动</span
+            >
           </span>
         </div>
         <div v-else @click="previewFile(scope.row.fileName)" class="fileName">
@@ -99,7 +103,7 @@
           </span>
           <span class="op">
             <span
-              class="iconfont icon-download"
+              class="iconfont icon-download clickable"
               @click.stop="downloadFile(scope.row.fileName)"
               >下载</span
             >
@@ -114,7 +118,11 @@
               @click.stop="renameFile(scope.row.fileName)"
               >重命名</span
             >
-            <span class="iconfont icon-move">移动</span>
+            <span
+              class="iconfont icon-move clickable"
+              @click.stop="moveFile(scope.row.fileName)"
+              >移动</span
+            >
           </span>
           <!-- <el-popover effect="light" trigger="hover" placement="top" width="auto">
           <template #default>
@@ -140,7 +148,7 @@
 </template>
 
 <script setup>
-import { getCurrentInstance, ref } from "vue";
+import { h, getCurrentInstance, ref } from "vue";
 
 const { proxy } = getCurrentInstance();
 
@@ -188,10 +196,6 @@ const returnFolder = () => {
 const enterFolder = (folderName) => {
   paths.push(folderName);
   loadFiles();
-  ElMessage({
-    message: folderName,
-    type: "success",
-  });
 };
 
 const imageUrl = ref("");
@@ -459,6 +463,44 @@ const upload = async (request) => {
       }
     }
   }
+};
+
+import PathChooser from "../components/PathChooser.vue";
+
+const moveFile = (fileName) => {
+  const newPath = ref([]);
+  console.log(newPath.value);
+  ElMessageBox({
+    showCancelButton: true,
+    confirmButtonText: "确认",
+    cancelButtonText: "取消",
+    title: "移动到",
+    // Should pass a function if VNode contains dynamic props
+    message: () =>
+      h(PathChooser, {
+        modelValue: newPath.value,
+      }),
+  })
+    .then(() => {
+      let targetPath;
+      if (newPath.value.length == 0) {
+        targetPath = "/";
+      } else {
+        targetPath = "/" + newPath.value.join("/") + "/";
+      }
+      proxy.Request.get("/file/moveTo", {
+        params: {
+          currentPath: currentPath.value,
+          fileName: fileName,
+          targetPath: targetPath,
+        },
+      }).then((response) => {
+        loadFiles();
+      });
+    })
+    .catch(() => {
+      console.log("用户取消输入");
+    });
 };
 
 const renameFile = (fileName) => {
