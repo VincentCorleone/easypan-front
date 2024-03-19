@@ -75,7 +75,11 @@
             <span>{{ scope.row.fileName }}</span>
           </span>
           <span class="op">
-            <span class="iconfont icon-share1">分享</span>
+            <span
+              class="iconfont icon-share1 clickable"
+              @click.stop="shareFile(scope.row.fileName)"
+              >分享</span
+            >
             <span
               class="iconfont icon-del clickable"
               @click.stop="deleteFile(scope.row.fileName)"
@@ -107,7 +111,11 @@
               @click.stop="downloadFile(scope.row.fileName)"
               >下载</span
             >
-            <span class="iconfont icon-share1">分享</span>
+            <span
+              class="iconfont icon-share1 clickable"
+              @click.stop="shareFile(scope.row.fileName)"
+              >分享</span
+            >
             <span
               class="iconfont icon-del clickable"
               @click.stop="deleteFile(scope.row.fileName)"
@@ -145,6 +153,66 @@
     :url-list="[imageUrl]"
     :onClose="closeViewer"
   ></ElImageViewer>
+  <el-dialog v-model="shareInfo.visible" title="分享" width="500">
+    <el-form
+      :model="shareInfo.form"
+      label-width="auto"
+      style="max-width: 600px"
+    >
+      <el-form-item label="文件名"> {{ shareInfo.form.fileName }} </el-form-item
+      ><el-form-item label="有效期" :required="true">
+        <el-radio-group v-model="shareInfo.form.validType">
+          <el-radio :label="1">1天</el-radio>
+          <el-radio :label="2">3天</el-radio>
+          <el-radio :label="3">7天</el-radio>
+          <el-radio :label="4">永久</el-radio>
+        </el-radio-group>
+      </el-form-item>
+      <el-form-item label="提取码" :required="true">
+        <el-radio-group v-model="shareInfo.form.howCode">
+          <el-radio :label="1">自定义</el-radio>
+          <el-radio :label="2">系统生成</el-radio>
+        </el-radio-group>
+      </el-form-item>
+      <el-form-item label=" " v-if="shareInfo.form.howCode == 1">
+        <el-input v-model="shareInfo.form.code" />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button @click="shareInfo.visible = false">取消</el-button>
+        <el-button type="primary" @click="confirmShare"> 确认 </el-button>
+      </div>
+    </template>
+  </el-dialog>
+
+  <el-dialog v-model="shareResult.visible" title="分享结果" width="500">
+    <el-form
+      :model="shareInfo.form"
+      label-width="auto"
+      style="max-width: 600px"
+    >
+      <el-form-item label="文件名">
+        {{ shareResult.form.fileName }} </el-form-item
+      ><el-form-item label="分享链接">
+        {{ shareResult.form.link }} </el-form-item
+      ><el-form-item label="提取码"> {{ shareResult.form.code }} </el-form-item
+      ><el-form-item label=" ">
+        <el-button
+          type="primary"
+          @click="copyToClipboard(shareResult.form.link, shareResult.form.code)"
+          >复制链接和提取码</el-button
+        >
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button type="primary" @click="shareResult.visible = false">
+          关闭
+        </el-button>
+      </div>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup>
@@ -464,6 +532,97 @@ const upload = async (request) => {
     }
   }
 };
+
+function copyToClipboard(link, code) {
+  const text = "链接: " + link + " 提取码: " + code;
+  navigator.clipboard
+    .writeText(text)
+    .then(function () {
+      console.log("Text copied to clipboard");
+      ElMessage({
+        message: "复制成功",
+        type: "success",
+      });
+    })
+    .catch(function (err) {
+      console.error("Failed to copy text: ", err);
+    });
+}
+
+const shareInfo = reactive({
+  visible: false,
+  form: {
+    fileName: "",
+    validType: 0,
+    // 1:1天，2:3天，3:7天，4：永久
+    howCode: 0,
+    // 1：自定义，2：系统生成
+    code: "",
+  },
+});
+
+const shareResult = reactive({
+  visible: false,
+  form: {
+    fileName: "",
+    link: "",
+    code: "",
+  },
+});
+
+function shareFile(fileName) {
+  shareInfo.visible = true;
+  shareInfo.form.fileName = fileName;
+}
+
+function confirmShare() {
+  if (shareInfo.form.validType == 0) {
+    ElMessage({
+      message: "有效期未填写",
+      type: "error",
+    });
+    return;
+  }
+  if (shareInfo.form.howCode == 0) {
+    ElMessage({
+      message: "提取码生成方式未填写",
+      type: "error",
+    });
+    return;
+  } else if (shareInfo.form.howCode == 1 && shareInfo.form.code == "") {
+    ElMessage({
+      message: "提取码未填写",
+      type: "error",
+    });
+    return;
+  }
+  shareInfo.visible = false;
+  proxy.Request.get("/share/create", {
+    params: {
+      currentPath: currentPath.value,
+      fileName: shareInfo.form.fileName,
+      validType: shareInfo.form.validType,
+      howCode: shareInfo.form.howCode,
+      code: shareInfo.form.code,
+    },
+  })
+    .then((response) => {
+      ElMessage({
+        message: response.data.message,
+        type: "success",
+      });
+      shareResult.form.fileName = shareInfo.form.fileName;
+      shareResult.form.link = response.data.data.link;
+      shareResult.form.code = response.data.data.code;
+      shareResult.visible = true;
+    })
+    .catch(function (error) {
+      ElMessage({
+        message: error.response.data.message,
+        type: "error",
+      });
+    });
+}
 
 import PathChooser from "../components/PathChooser.vue";
 
