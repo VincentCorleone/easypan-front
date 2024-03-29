@@ -12,6 +12,11 @@ const router = createRouter({
       component: () => import('../views/Login.vue')
     },
     {
+      path: '/share/:suffix',
+      name: 'Share',
+      component: () => import('../views/ShareGuest.vue')
+    },
+    {
       path: '/dashboard',
       name: 'Dashboard',
       component: () => import('../views/Dashboard.vue'),
