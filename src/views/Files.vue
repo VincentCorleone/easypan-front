@@ -611,8 +611,16 @@ function confirmShare() {
         message: response.data.message,
         type: "success",
       });
+      var currentUrl = window.location.href;
+      var cursor = currentUrl.indexOf("//") + 2;
+      while (currentUrl[cursor] != "/") {
+        cursor++;
+      }
       shareResult.form.fileName = shareInfo.form.fileName;
-      shareResult.form.link = response.data.data.link;
+      shareResult.form.link =
+        currentUrl.substring(0, cursor) +
+        "/share/" +
+        response.data.data.linkSuffix;
       shareResult.form.code = response.data.data.code;
       shareResult.visible = true;
     })
