@@ -30,10 +30,8 @@
           </div>
         </div>
         <div class="code-body">
-          <div id="input-hint">请输入提取码：</div>
           <div id="extract-code">
-            <el-input></el-input>
-            <el-button type="primary">提取文件</el-button>
+            <el-button type="success" @click="download">提取文件</el-button>
           </div>
         </div>
       </div>
@@ -57,6 +55,9 @@
 }
 #extract-code {
   display: flex;
+  .el-button {
+    width: 100%;
+  }
 }
 
 .avatar {
@@ -137,4 +138,10 @@ onMounted(() => {
     shareInfo.fileName = response.data.data.fileName;
   });
 });
+
+import config from "../utils/config.js";
+
+function download() {
+  window.open(config.baseUrl + "/share/download?suffix=" + route.params.suffix);
+}
 </script>
