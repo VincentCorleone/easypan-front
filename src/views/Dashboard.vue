@@ -1,5 +1,5 @@
 <script setup>
-import { ref, getCurrentInstance } from "vue";
+import { reactive, ref, getCurrentInstance, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 
 const { proxy } = getCurrentInstance();
@@ -46,12 +46,95 @@ const logout = () => {
     });
 };
 
+const username = ref("");
+
+function userInfo() {
+  proxy.Request.get("/user/info")
+    .then((response) => {
+      username.value = response.data.data.nickname;
+    })
+    .catch(function (error) {
+      ElMessage({
+        message: error.response.data.message,
+        type: "error",
+      });
+    });
+}
+
+onMounted(() => {
+  userInfo();
+});
+
 const uploadProgressRef = ref(null);
 
 const updateUploadProgress = (file) => {
   showUploadProgress.value = true;
   uploadProgressRef.value?.updateUploadProgress(file);
 };
+
+const dialogVisible = ref(false);
+const form = reactive({
+  password: "",
+  rePassword: "",
+});
+
+const ruleFormRef = ref();
+
+const password = (rule, value, callback) => {
+  var pattern = /^[0-9a-z]{8,12}$/;
+  if (!pattern.test(value))
+    return callback(new Error("密码格式不正确，正确格式为8-12位密码或数字"));
+  callback();
+};
+
+const rePassword = (rule, value, callback) => {
+  if (form.password !== value)
+    return callback(new Error("两次输入的密码不一致"));
+  callback();
+};
+
+const formRules = {
+  password: [
+    { required: true, message: "请输入密码" },
+    { validator: password, trigger: "blur" },
+  ],
+  rePassword: [
+    { required: true, message: "请再次输入密码" },
+    { validator: rePassword, trigger: "blur" },
+  ],
+};
+
+function updatePwd() {
+  dialogVisible.value = true;
+}
+
+function submit() {
+  // dialogVisible.value = false;
+  ruleFormRef.value.validate((valid) => {
+    if (valid) {
+      proxy.Request.get("/user/updatePwd", {
+        params: {
+          password: form.password,
+        },
+      })
+        .then((response) => {
+          ElMessage({
+            message: response.data.message,
+            type: "success",
+          });
+        })
+        .catch(function (error) {
+          ElMessage({
+            message: error.response.data.message,
+            type: "error",
+          });
+        });
+      form.password = "";
+      dialogVisible.value = false;
+    }
+  });
+  // console.log(form.password);ss
+}
 </script>
 
 <style scoped>
@@ -80,6 +163,16 @@ const updateUploadProgress = (file) => {
 }
 .right-panel {
   display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-right: 16px;
+}
+
+.right-panel .el-dropdown span {
+  color: #05a1f5;
+}
+.el-tooltip__trigger {
+  padding-right: 16px;
 }
 
 .body {
@@ -128,14 +221,12 @@ const updateUploadProgress = (file) => {
       </el-popover>
       <el-dropdown>
         <div class="user-info">
-          <div class="avatar">头像</div>
-          <span>张三</span>
+          <span>{{ username }}</span>
         </div>
 
         <template #dropdown>
           <el-dropdown-menu>
-            <el-dropdown-item>修改头像</el-dropdown-item>
-            <el-dropdown-item>修改密码</el-dropdown-item>
+            <el-dropdown-item @click="updatePwd()">修改密码</el-dropdown-item>
             <el-dropdown-item @click="logout()">退出</el-dropdown-item>
           </el-dropdown-menu>
         </template>
@@ -159,13 +250,6 @@ const updateUploadProgress = (file) => {
           <div class="iconfont icon-share"></div>
           <div>分享</div>
         </div>
-        <div
-          :class="['menu-item', currentMenuIndex == 3 ? 'active' : '']"
-          @click="selectMenu(3)"
-        >
-          <div class="iconfont icon-del"></div>
-          <div>回收站</div>
-        </div>
       </div>
     </div>
     <div class="content">
@@ -177,4 +261,31 @@ const updateUploadProgress = (file) => {
       </router-view>
     </div>
   </div>
+
+  <el-dialog
+    v-model="dialogVisible"
+    :rules="formRules"
+    title="修改密码"
+    width="500"
+  >
+    <el-form
+      :model="form"
+      ref="ruleFormRef"
+      :rules="formRules"
+      label-width="auto"
+    >
+      <el-form-item label="新密码" prop="password">
+        <el-input v-model="form.password" autocomplete="off" show-password />
+      </el-form-item>
+      <el-form-item label="再次输入新密码" prop="rePassword">
+        <el-input v-model="form.rePassword" autocomplete="off" show-password />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="submit"> 确认 </el-button>
+      </div>
+    </template>
+  </el-dialog>
 </template>

@@ -40,14 +40,7 @@ import { ElMessage } from "element-plus";
 
 const { proxy } = getCurrentInstance();
 
-const shares = ref([
-  {
-    fileName: "测试文件1",
-    linkSuffix: "HciTXEkToyxmiKbWWnfX",
-    shareTime: "2024-04-05 13:47:53",
-    expireTime: "2024-05-05 13:47:53",
-  },
-]);
+const shares = ref([]);
 
 function copyLink(linkSuffix) {
   var currentUrl = window.location.href;
@@ -88,9 +81,16 @@ function cancelShare(linkSuffix) {
 }
 
 function loadShares() {
-  proxy.Request.get("/share/list").then((response) => {
-    shares.value = response.data.data;
-  });
+  proxy.Request.get("/share/list")
+    .then((response) => {
+      shares.value = response.data.data;
+    })
+    .catch((error) => {
+      ElMessage({
+        message: error.response.data.message,
+        type: "error",
+      });
+    });
 }
 
 onMounted(() => {
