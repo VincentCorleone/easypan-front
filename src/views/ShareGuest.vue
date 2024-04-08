@@ -132,11 +132,18 @@ onMounted(() => {
     params: {
       linkSuffix: route.params.suffix,
     },
-  }).then((response) => {
-    shareInfo.nickName = response.data.data.nickName;
-    shareInfo.shareTime = response.data.data.datetime;
-    shareInfo.fileName = response.data.data.fileName;
-  });
+  })
+    .then((response) => {
+      shareInfo.nickName = response.data.data.nickName;
+      shareInfo.shareTime = response.data.data.datetime;
+      shareInfo.fileName = response.data.data.fileName;
+    })
+    .catch((error) => {
+      ElMessage({
+        message: error.response.data.message,
+        type: "error",
+      });
+    });
 });
 
 import config from "../utils/config.js";

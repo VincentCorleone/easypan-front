@@ -58,6 +58,9 @@ function userInfo() {
         message: error.response.data.message,
         type: "error",
       });
+      if (error.response.data.message == "该页面需要登录才能访问") {
+        router.push("/");
+      }
     });
 }
 
@@ -177,16 +180,16 @@ function submit() {
 
 .body {
   display: flex;
-  height: 100vh;
+  height: calc(100vh - 56px);
 }
 .left-sider {
-  height: 100vh;
   width: 72px;
   box-shadow: 0 3px 3px 0 rgba(0, 0, 0, 0.62);
 }
 
 .content {
-  height: 100vh;
+  overflow: scroll;
+  padding: 10px;
   width: 100%;
 }
 

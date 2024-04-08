@@ -31,6 +31,8 @@
   }
   .window-content {
     position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
     top: 0px;
     z-index: 201;
     background: #fff;
@@ -63,6 +65,7 @@
           v-if="type == 'video'"
         ></VideoPreviewer>
         <MusicPreviewer
+          style="width: 600px"
           :fileName="g_fileName"
           :currentPath="g_currentPath"
           v-else-if="type == 'music'"
@@ -103,8 +106,8 @@
           "
           v-else-if="type == 'txt'"
         ></TxtPreviewer>
-        <div v-else>
-          <p>该类型不支持预览，请直接下载</p>
+        <div v-else style="width: 600px">
+          <p style="margin-left: 20px">该类型不支持预览，请直接下载</p>
         </div>
       </div>
     </div>

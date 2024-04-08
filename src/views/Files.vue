@@ -7,6 +7,10 @@
   display: flex;
 }
 
+.fileTitle {
+  cursor: pointer;
+}
+
 .clickable {
   color: cadetblue;
   cursor: pointer;
@@ -28,7 +32,7 @@
 
 <template>
   <div class="buttons">
-    <el-upload :http-request="upload">
+    <el-upload :http-request="upload" :show-file-list="false">
       <el-button type="primary">
         <span class="iconfont icon-upload"></span>
         上传
@@ -70,7 +74,7 @@
           class="fileName"
           @click="enterFolder(scope.row.fileName)"
         >
-          <span>
+          <span class="fileTitle">
             <FileIcon :fileName="'.dir'"></FileIcon>
             <span>{{ scope.row.fileName }}</span>
           </span>
@@ -93,7 +97,7 @@
           </span>
         </div>
         <div v-else @click="previewFile(scope.row.fileName)" class="fileName">
-          <span>
+          <span class="fileTitle">
             <FileIcon
               :currentPath="currentPath"
               :fileName="scope.row.fileName"
